@@ -25,7 +25,9 @@ export async function updateArticleAction(
   const input = parseArticleInput(formData);
   if (!input.success) return { error: input.error };
 
-  const existingArticle = await prisma.article.findUnique({ where: { id: articleId } });
+  const existingArticle = await prisma.article.findFirst({
+    where: { id: articleId, deletedAt: null },
+  });
   if (!existingArticle) return { error: "文章不存在或已被删除。" };
 
   const { shouldPublish, ...articleData } = input.data;

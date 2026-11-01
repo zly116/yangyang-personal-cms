@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function getPublishedArticles() {
   return prisma.article.findMany({
-    where: { status: ArticleStatus.PUBLISHED },
+    where: { status: ArticleStatus.PUBLISHED, deletedAt: null },
     orderBy: { publishedAt: "desc" },
   });
 }
@@ -13,6 +13,7 @@ export async function getPublishedArticleBySlug(slug: string) {
     where: {
       slug,
       status: ArticleStatus.PUBLISHED,
+      deletedAt: null,
     },
   });
 }

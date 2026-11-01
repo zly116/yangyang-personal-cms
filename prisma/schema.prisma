@@ -22,10 +22,12 @@ model Article {
   category    String        @db.VarChar(100)
   status      ArticleStatus @default(DRAFT)
   publishedAt DateTime?
+  deletedAt   DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   @@index([status, publishedAt])
+  @@index([deletedAt])
 }
 
 model AdminUser {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminHeader } from "@/app/admin/_components/admin-header";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { TrashArticleButton } from "./trash-article-button";
 
 const statusText = {
   DRAFT: "草稿",
@@ -11,6 +12,7 @@ const statusText = {
 export default async function AdminArticlesPage() {
   const admin = await requireAdmin();
   const articles = await prisma.article.findMany({
+    where: { deletedAt: null },
     orderBy: { updatedAt: "desc" },
   });
 
@@ -62,6 +64,7 @@ export default async function AdminArticlesPage() {
                       ) : (
                         <span className="table-muted">未公开</span>
                       )}
+                      <TrashArticleButton articleId={article.id} title={article.title} />
                     </div>
                   </td>
                 </tr>

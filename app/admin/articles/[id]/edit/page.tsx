@@ -15,7 +15,9 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
   const articleId = Number(id);
 
   if (!Number.isInteger(articleId) || articleId <= 0) notFound();
-  const article = await prisma.article.findUnique({ where: { id: articleId } });
+  const article = await prisma.article.findFirst({
+    where: { id: articleId, deletedAt: null },
+  });
   if (!article) notFound();
 
   return (

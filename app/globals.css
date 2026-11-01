@@ -16,3 +16,5 @@
 
 .table-actions{display:flex;align-items:center;justify-content:flex-end;gap:14px}.form-actions-split{align-items:center;justify-content:space-between}.form-actions-split>div{display:flex;gap:12px}
 @media(max-width:700px){.form-actions-split{align-items:stretch}.form-actions-split>div{display:flex;flex-direction:column-reverse}.form-actions-split .status-badge{align-self:flex-start}}
+
+.table-actions form{display:inline}.table-danger,.table-button{border:0;background:transparent;padding:0;font:inherit;cursor:pointer}.table-danger{color:#a2362f}.table-button{white-space:nowrap}

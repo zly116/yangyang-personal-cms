@@ -5,8 +5,8 @@ import { AdminHeader } from "@/app/admin/_components/admin-header";
 export default async function AdminPage() {
   const admin = await requireAdmin();
   const [articleCount, draftCount] = await Promise.all([
-    prisma.article.count(),
-    prisma.article.count({ where: { status: "DRAFT" } }),
+    prisma.article.count({ where: { deletedAt: null } }),
+    prisma.article.count({ where: { status: "DRAFT", deletedAt: null } }),
   ]);
 
   return (

@@ -14,6 +14,7 @@ export function AdminHeader({ email }: AdminHeaderProps) {
       <nav className="admin-nav" aria-label="后台导航">
         <Link href="/admin">概览</Link>
         <Link href="/admin/articles">文章</Link>
+        <Link href="/admin/trash">回收站</Link>
       </nav>
       <div className="admin-account">
         <span>{email}</span>
