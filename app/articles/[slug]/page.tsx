@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getPublishedArticleBySlug,
-  getPublishedArticles,
-} from "@/lib/articles";
+import { getPublishedArticleBySlug } from "@/lib/articles";
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getPublishedArticles().map((article) => ({ slug: article.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = getPublishedArticleBySlug(slug);
+  const article = await getPublishedArticleBySlug(slug);
 
   if (!article) {
     return { title: "文章未找到 | 盖洋阳" };
@@ -30,7 +25,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const article = getPublishedArticleBySlug(slug);
+  const article = await getPublishedArticleBySlug(slug);
 
   if (!article) {
     notFound();
@@ -51,8 +46,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <h1>{article.title}</h1>
           <p className="article-excerpt">{article.excerpt}</p>
           <div className="article-meta">
-            <span>发布于 {article.publishedAt}</span>
-            <span>最后更新 {article.updatedAt}</span>
+            <span>发布于 {article.publishedAt?.toLocaleDateString("zh-CN")}</span>
+            <span>最后更新 {article.updatedAt.toLocaleDateString("zh-CN")}</span>
           </div>
         </header>
 

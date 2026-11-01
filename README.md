@@ -4,12 +4,16 @@
 
 ## 当前阶段
 
-第一阶段：本地项目骨架与个人主页视觉原型。
+当前已完成个人主页、文章数据模型、文章详情页，以及 MySQL/Prisma 数据持久化。下一阶段将建立管理后台。
 
 ## 本地运行
 
 ```bash
 npm install
+npm run db:generate
+docker compose up -d
+npm run db:migrate -- --name init_articles
+npm run db:seed
 npm run dev
 ```
 

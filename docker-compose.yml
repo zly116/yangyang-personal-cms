@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: yangyang-cms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: local_root_password
+      MYSQL_DATABASE: yangyang_cms
+      MYSQL_USER: cms_user
+      MYSQL_PASSWORD: cms_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-plocal_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mysql_data:

@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Article {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique @db.VarChar(191)
+  title       String        @db.VarChar(255)
+  excerpt     String        @db.VarChar(500)
+  content     String        @db.LongText
+  category    String        @db.VarChar(100)
+  status      ArticleStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+}
