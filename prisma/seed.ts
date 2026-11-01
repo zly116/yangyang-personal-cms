@@ -1,4 +1,5 @@
 import { ArticleStatus, PrismaClient } from "@prisma/client";
+import { hashPassword } from "../lib/password";
 
 const prisma = new PrismaClient();
 
@@ -39,6 +40,24 @@ async function main() {
       update: article,
       create: article,
     });
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (adminEmail && adminPassword) {
+    if (adminPassword.length < 12) {
+      throw new Error("ADMIN_PASSWORD must contain at least 12 characters.");
+    }
+
+    const passwordHash = await hashPassword(adminPassword);
+    await prisma.adminUser.upsert({
+      where: { email: adminEmail },
+      update: { passwordHash },
+      create: { email: adminEmail, passwordHash },
+    });
+  } else {
+    console.warn("Admin user skipped: set ADMIN_EMAIL and ADMIN_PASSWORD in .env.");
   }
 }
 

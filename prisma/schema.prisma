@@ -27,3 +27,24 @@ model Article {
 
   @@index([status, publishedAt])
 }
+
+model AdminUser {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique @db.VarChar(191)
+  passwordHash String         @db.VarChar(255)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique @db.Char(64)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+
+  @@index([userId])
+  @@index([expiresAt])
+}
