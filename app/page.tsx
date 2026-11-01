@@ -1,10 +1,9 @@
-const articles = [
-  { title: "为什么我要从零搭建一个个人 CMS", tag: "项目开始", date: "2026-11-01" },
-  { title: "CMS、博客和 WordPress 到底有什么区别", tag: "调研", date: "待发布" },
-  { title: "我的第一版系统架构：先完成闭环，再逐步升级", tag: "设计", date: "待发布" },
-];
+import Link from "next/link";
+import { getPublishedArticles } from "@/lib/articles";
 
 export default function HomePage() {
+  const articles = getPublishedArticles();
+
   return (
     <main className="site-shell">
       <nav className="topbar">
@@ -25,7 +24,7 @@ export default function HomePage() {
         <div className="about-text"><p>我还在学习，也还没有一个确定的职业标签。但我想把学习过程变成真实的产品，而不是停留在收藏教程。</p><p>这个网站既是我的个人主页，也是我的实验场：我会公开每一次选择、遇到的问题，以及最后真正学会了什么。</p></div>
       </section>
 
-      <section className="articles" id="articles"><div className="section-heading"><div><p className="section-label">02 / JOURNAL</p><h2>项目日志</h2></div><span className="muted">{articles.length} 篇计划文章</span></div><div className="article-list">{articles.map((article, index) => <article className="article-row" key={article.title}><span className="article-index">0{index + 1}</span><div><p className="article-tag">{article.tag}</p><h3>{article.title}</h3></div><time>{article.date}</time><span className="arrow">↗</span></article>)}</div></section>
+      <section className="articles" id="articles"><div className="section-heading"><div><p className="section-label">02 / JOURNAL</p><h2>项目日志</h2></div><span className="muted">{articles.length} 篇已发布文章</span></div><div className="article-list">{articles.map((article, index) => <Link className="article-row" href={`/articles/${article.slug}`} key={article.id}><span className="article-index">0{index + 1}</span><div><p className="article-tag">{article.category}</p><h3>{article.title}</h3></div><time>{article.publishedAt}</time><span className="arrow">↗</span></Link>)}</div></section>
 
       <section className="roadmap" id="roadmap"><p className="section-label">03 / ROADMAP</p><h2>从调研到上线，<br />每一步都留下证据。</h2><div className="roadmap-line"><span className="done">01<br /><small>调研</small></span><span>02<br /><small>设计</small></span><span>03<br /><small>开发</small></span><span>04<br /><small>部署</small></span></div></section>
 
