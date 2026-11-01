@@ -13,6 +13,12 @@ enum ArticleStatus {
   PUBLISHED
 }
 
+enum FeedbackStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Article {
   id          Int           @id @default(autoincrement())
   slug        String        @unique @db.VarChar(191)
@@ -25,9 +31,26 @@ model Article {
   deletedAt   DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  feedback    ArticleFeedback[]
 
   @@index([status, publishedAt])
   @@index([deletedAt])
+}
+
+model ArticleFeedback {
+  id          Int            @id @default(autoincrement())
+  nickname    String         @db.VarChar(30)
+  content     String         @db.VarChar(1000)
+  rating      Int
+  status      FeedbackStatus @default(PENDING)
+  visitorHash String         @db.Char(64)
+  createdAt   DateTime       @default(now())
+  reviewedAt  DateTime?
+  article     Article        @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId   Int
+
+  @@index([articleId, status, createdAt])
+  @@index([visitorHash, articleId, createdAt])
 }
 
 model AdminUser {

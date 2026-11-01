@@ -4,9 +4,10 @@ import { AdminHeader } from "@/app/admin/_components/admin-header";
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
-  const [articleCount, draftCount] = await Promise.all([
+  const [articleCount, draftCount, pendingFeedbackCount] = await Promise.all([
     prisma.article.count({ where: { deletedAt: null } }),
     prisma.article.count({ where: { status: "DRAFT", deletedAt: null } }),
+    prisma.articleFeedback.count({ where: { status: "PENDING" } }),
   ]);
 
   return (
@@ -22,7 +23,7 @@ export default async function AdminPage() {
       <section className="admin-stats">
         <div><span>全部文章</span><strong>{articleCount}</strong></div>
         <div><span>草稿</span><strong>{draftCount}</strong></div>
-        <div><span>待审核评论</span><strong>0</strong></div>
+        <div><span>待审核评论</span><strong>{pendingFeedbackCount}</strong></div>
       </section>
     </main>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublishedArticleBySlug } from "@/lib/articles";
+import { FeedbackForm } from "./feedback-form";
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>;
@@ -55,6 +56,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <p>{article.content}</p>
         </div>
       </article>
+
+      <FeedbackForm articleId={article.id} />
 
       <footer>
         <span>© 2026 盖洋阳</span>
