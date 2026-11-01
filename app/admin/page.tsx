@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { AdminHeader } from "@/app/admin/_components/admin-header";
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
@@ -10,15 +11,12 @@ export default async function AdminPage() {
 
   return (
     <main className="admin-shell">
-      <header className="admin-topbar">
-        <div><p className="section-label">YANGYANG CMS</p><strong>管理后台</strong></div>
-        <div className="admin-account"><span>{admin.email}</span><form action="/api/admin/logout" method="post"><button type="submit">退出</button></form></div>
-      </header>
+      <AdminHeader email={admin.email} />
 
       <section className="admin-welcome">
         <p className="section-label">OVERVIEW</p>
         <h1>内容概览</h1>
-        <p>登录保护已经生效。下一批将在这里加入文章管理。</p>
+        <p>查看内容状态，并从文章列表进入后续管理流程。</p>
       </section>
 
       <section className="admin-stats">
