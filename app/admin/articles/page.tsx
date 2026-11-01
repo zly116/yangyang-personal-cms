@@ -24,7 +24,10 @@ export default async function AdminArticlesPage() {
           <h1>文章管理</h1>
           <p>后台显示全部文章；公开网站仍然只显示已发布内容。</p>
         </div>
-        <span className="admin-count">共 {articles.length} 篇</span>
+        <div className="admin-heading-actions">
+          <span className="admin-count">共 {articles.length} 篇</span>
+          <Link className="admin-primary-link" href="/admin/articles/new">新建文章</Link>
+        </div>
       </section>
 
       {articles.length === 0 ? (
