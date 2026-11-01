@@ -4,6 +4,7 @@ import { ArticleStatus, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
+import { parseArticleInput } from "@/lib/article-input";
 import { prisma } from "@/lib/prisma";
 
 export type CreateArticleState = {
@@ -16,35 +17,14 @@ export async function createArticleAction(
 ): Promise<CreateArticleState> {
   await requireAdmin();
 
-  const title = String(formData.get("title") ?? "").trim();
-  const slug = String(formData.get("slug") ?? "").trim().toLowerCase();
-  const excerpt = String(formData.get("excerpt") ?? "").trim();
-  const content = String(formData.get("content") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
-  const intent = formData.get("intent") === "publish" ? "publish" : "draft";
-
-  if (!title || !slug || !excerpt || !content || !category) {
-    return { error: "请填写所有必填内容。" };
-  }
-
-  if (title.length > 255 || excerpt.length > 500 || category.length > 100) {
-    return { error: "标题、摘要或分类超过允许长度。" };
-  }
-
-  if (slug.length > 191 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-    return { error: "网址标识只能使用小写字母、数字和单个连字符。" };
-  }
-
-  const shouldPublish = intent === "publish";
+  const input = parseArticleInput(formData);
+  if (!input.success) return { error: input.error };
+  const { shouldPublish, ...articleData } = input.data;
 
   try {
     await prisma.article.create({
       data: {
-        title,
-        slug,
-        excerpt,
-        content,
-        category,
+        ...articleData,
         status: shouldPublish ? ArticleStatus.PUBLISHED : ArticleStatus.DRAFT,
         publishedAt: shouldPublish ? new Date() : null,
       },

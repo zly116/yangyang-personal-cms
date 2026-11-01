@@ -55,11 +55,14 @@ export default async function AdminArticlesPage() {
                   <td>{article.category}</td>
                   <td>{article.updatedAt.toLocaleDateString("zh-CN")}</td>
                   <td>
-                    {article.status === "PUBLISHED" ? (
-                      <Link className="table-link" href={`/articles/${article.slug}`}>查看 ↗</Link>
-                    ) : (
-                      <span className="table-muted">未公开</span>
-                    )}
+                    <div className="table-actions">
+                      <Link className="table-link" href={`/admin/articles/${article.id}/edit`}>编辑</Link>
+                      {article.status === "PUBLISHED" ? (
+                        <Link className="table-link" href={`/articles/${article.slug}`}>查看 ↗</Link>
+                      ) : (
+                        <span className="table-muted">未公开</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
