@@ -13,9 +13,15 @@ export async function POST(request: Request) {
     : (await hashPassword(password), false);
 
   if (!user || !isValid) {
-    return NextResponse.redirect(new URL("/admin/login?error=invalid", request.url), 303);
+    return new NextResponse(null, {
+      status: 303,
+      headers: { Location: "/admin/login?error=invalid" },
+    });
   }
 
   await createAdminSession(user.id);
-  return NextResponse.redirect(new URL("/admin", request.url), 303);
+  return new NextResponse(null, {
+    status: 303,
+    headers: { Location: "/admin" },
+  });
 }
