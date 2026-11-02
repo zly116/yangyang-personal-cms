@@ -13,6 +13,7 @@ export function AdminHeader({ email }: AdminHeaderProps) {
       </div>
       <nav className="admin-nav" aria-label="后台导航">
         <Link href="/admin">概览</Link>
+        <Link href="/admin/profile">个人资料</Link>
         <Link href="/admin/articles">文章</Link>
         <Link href="/admin/feedback">评论</Link>
         <Link href="/admin/trash">回收站</Link>

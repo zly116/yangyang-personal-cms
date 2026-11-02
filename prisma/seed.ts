@@ -42,6 +42,24 @@ async function main() {
     });
   }
 
+  const existingProfile = await prisma.siteProfile.findUnique({ where: { id: 1 } });
+  if (!existingProfile) {
+    await prisma.siteProfile.create({
+      data: {
+        id: 1,
+        name: "盖洋阳",
+        role: "独立开发者 · 公开学习",
+        heroTitle: "把一个想法，",
+        heroHighlight: "做成真的。",
+        introduction: "我是盖洋阳，一名正在把学习变成真实产品的独立开发者。这里记录我如何借助 AI，把一个个人 CMS 从想法、调研一路做到上线。",
+        statusText: "正在搭建第一版",
+        aboutTitle: "不假装已经成为专家。",
+        aboutParagraphOne: "我还在学习，也还没有一个确定的职业标签。但我想把学习过程变成真实的产品，而不是停留在收藏教程。",
+        aboutParagraphTwo: "这个网站既是我的个人主页，也是我的实验场：我会公开每一次选择、遇到的问题，以及最后真正学会了什么。",
+      },
+    });
+  }
+
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPassword = process.env.ADMIN_PASSWORD;
 

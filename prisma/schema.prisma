@@ -53,6 +53,21 @@ model ArticleFeedback {
   @@index([visitorHash, articleId, createdAt])
 }
 
+model SiteProfile {
+  id                Int      @id
+  name              String   @db.VarChar(50)
+  role              String   @db.VarChar(100)
+  heroTitle         String   @db.VarChar(100)
+  heroHighlight     String   @db.VarChar(100)
+  introduction      String   @db.VarChar(500)
+  statusText        String   @db.VarChar(100)
+  aboutTitle        String   @db.VarChar(100)
+  aboutParagraphOne String   @db.VarChar(1000)
+  aboutParagraphTwo String   @db.VarChar(1000)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
 model AdminUser {
   id           Int            @id @default(autoincrement())
   email        String         @unique @db.VarChar(191)
