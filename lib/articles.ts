@@ -15,5 +15,18 @@ export async function getPublishedArticleBySlug(slug: string) {
       status: ArticleStatus.PUBLISHED,
       deletedAt: null,
     },
+    include: {
+      feedback: {
+        where: { status: "APPROVED" },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          nickname: true,
+          content: true,
+          rating: true,
+          createdAt: true,
+        },
+      },
+    },
   });
 }

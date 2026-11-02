@@ -57,6 +57,30 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </div>
       </article>
 
+      <section className="public-feedback" aria-labelledby="public-feedback-title">
+        <div className="public-feedback-summary">
+          <p className="section-label">READER FEEDBACK</p>
+          <h2 id="public-feedback-title">读者评论</h2>
+        </div>
+
+        {article.feedback.length === 0 ? (
+          <p className="public-feedback-empty">还没有审核通过的评论，欢迎留下第一条反馈。</p>
+        ) : (
+          <div className="public-feedback-list">
+            {article.feedback.map((item) => (
+              <article className="public-feedback-item" key={item.id}>
+                <header>
+                  <strong>{item.nickname}</strong>
+                  <span className="feedback-stars" aria-label={`${item.rating} 星`}>{"★".repeat(item.rating)}{"☆".repeat(5 - item.rating)}</span>
+                </header>
+                <p>{item.content}</p>
+                <time dateTime={item.createdAt.toISOString()}>{item.createdAt.toLocaleDateString("zh-CN")}</time>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
       <FeedbackForm articleId={article.id} />
 
       <footer>
