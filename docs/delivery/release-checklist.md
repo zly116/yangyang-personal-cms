@@ -11,29 +11,29 @@
 - [x] 生产 Compose 不公开 MySQL 与 Next.js 主机端口
 - [x] 生产数据库结构使用 `prisma migrate deploy`
 - [x] Docker 数据卷与数据库备份在文档中明确区分
+- [x] GitHub 最新部署代码已推送
+- [x] Docker 生产镜像已在火山云服务器实际构建
+- [x] Cloudflare Named Tunnel 已创建并验证
+- [x] Public Hostname 已通过 HTTPS 访问验证
+- [x] App、MySQL 和 cloudflared 生产服务正常运行
+- [x] 后台登录、退出和 Cloudflare 代理跳转已验证
+- [x] 已完成至少一次数据库手工备份
+- [x] Next.js 已升级到无已知致命审计漏洞的安全补丁版本
 
 ## 仍未闭环
 
-- [ ] GitHub 最新提交需要确认已推送
-- [ ] Docker 生产镜像需要在服务器实际构建
-- [ ] Cloudflare Named Tunnel 需要创建并验证
-- [ ] Public Hostname 需要配置并验证 HTTPS 访问
-- [ ] 生产环境强密码需要人工生成
-- [ ] 截图中暴露过的本地密码需要确认不在生产环境复用
 - [ ] 评论接口缺少反向代理级限流与验证码
 - [ ] 数据库定时备份与异地保存尚未配置
 - [ ] 数据库恢复演练尚未执行
 - [ ] 日志监控、磁盘告警和容器异常通知尚未配置
 - [ ] 域名与服务器接入方式的备案合规需要人工确认
+- [ ] 脱敏后的测试与部署截图尚未保存到仓库
 
 ## 需要人工提供
 
-- Cloudflare 账号与已接入 Cloudflare 的可用域名
-- Cloudflare Tunnel Token（只写入服务器，不交给文档或 Git）
-- 火山云服务器 SSH 或 1Panel 操作权限
-- 生产管理员邮箱和新密码
-- 生产 MySQL root 与应用用户密码
 - 备份保存位置和保留周期
+- 监控告警的接收渠道
+- 域名与服务器接入方式的合规确认结果
 
 ## 建议上线前阻断项
 

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { getPublishedArticles } from "@/lib/articles";
-import { prisma } from "@/lib/prisma";
+import { getPublicSiteProfile } from "@/lib/site-profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [articles, profile] = await Promise.all([
     getPublishedArticles(),
-    prisma.siteProfile.findUnique({ where: { id: 1 } }),
+    getPublicSiteProfile(),
   ]);
 
   if (!profile) {

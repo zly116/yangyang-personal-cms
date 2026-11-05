@@ -35,6 +35,7 @@
 | 数据访问 | Prisma 6 | 生成类型安全客户端，并记录数据库迁移 |
 | 本地环境 | Docker Compose | 统一 MySQL 版本、端口和数据卷配置 |
 | 版本控制 | Git + GitHub | 保存代码历史和远程仓库 |
+| 生产部署 | Docker Compose + Cloudflare Named Tunnel | 统一运行环境，并让服务器无需公开 App 和数据库端口 |
 
 第一版采用单体架构。当前只有一个开发者，过早拆分独立前端、后台服务或微服务会增加接口、跨域、认证、部署和排错成本，却不会直接增加用户价值。
 
@@ -109,7 +110,7 @@ npm run db:seed
 npm run dev
 ```
 
-默认访问地址：
+本地默认访问地址：
 
 - 公开主页：`http://localhost:3000`
 - 后台登录：`http://localhost:3000/admin/login`
@@ -158,12 +159,20 @@ npm run db:studio    # 用浏览器查看数据库内容
 
 开发过程记录在 `docs/learning`，包括数据模型、动态路由、认证、文章管理、软删除、访客反馈、评论审核和个人资料管理。
 
+## 交付文档
+
+- [CMS 项目测试手册](docs/delivery/test-manual.md)
+- [服务器与 Cloudflare Named Tunnel 部署手册](docs/delivery/cloudflare-named-tunnel-deployment-guide.md)
+- [上线前纠偏与验收清单](docs/delivery/release-checklist.md)
+
 ## 当前限制与后续计划
 
 - 文章正文目前是普通文本，还未支持 Markdown 或经过清洗的富文本
 - 访客没有账号系统，防重复策略可以通过更换浏览器或清理 Cookie 绕过
-- 尚未配置生产环境数据库备份、日志监控和恢复演练
-- 域名仍在 ICP 备案阶段，暂未正式绑定域名
-- 下一阶段是火山云部署、OpenResty 反向代理、安全配置、备份和最终验收
+- 已部署到火山云服务器，并通过 Cloudflare Named Tunnel 使用 `https://blog.geyangyang.vip` 对外访问
+- 已完成数据库手工备份，但自动定时备份、异地保存和恢复演练仍未完成
+- 尚未配置日志监控、磁盘告警和容器异常通知
+- 评论接口目前只有基础防重复策略，仍缺少反向代理级限流和验证码
+- 测试手册与部署手册已经生成，测试手册真实截图已归档
 
 DeepSeek 问答不属于第一版 CMS 的核心闭环，因此暂不接入。项目开发过程中使用 AI 辅助需求分析、代码实现和复盘，但每项功能仍需要人工确认范围、验证结果并理解技术选择。

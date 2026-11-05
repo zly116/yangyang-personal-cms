@@ -2,9 +2,11 @@
 
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
+import { nocobaseRequest, usesNocoBase } from "@/lib/nocobase";
 import { prisma } from "@/lib/prisma";
 
 const VISITOR_COOKIE = "cms_feedback_visitor";
+const FEEDBACK_COOLDOWN_COOKIE_PREFIX = "cms_feedback_cooldown_";
 const COOLDOWN_MS = 10 * 60 * 1000;
 
 export type FeedbackState = {
@@ -14,6 +16,30 @@ export type FeedbackState = {
 
 function hashVisitorToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
+}
+
+type FeedbackArticle = {
+  id: number;
+  status: string;
+  deletedAt: string | Date | null;
+};
+
+async function findPublishedArticle(articleId: number): Promise<FeedbackArticle | null> {
+  if (usesNocoBase()) {
+    try {
+      const article = await nocobaseRequest<FeedbackArticle>(
+        `articles:get?filterByTk=${encodeURIComponent(articleId)}`,
+      );
+      return article.status === "PUBLISHED" && !article.deletedAt ? article : null;
+    } catch {
+      return null;
+    }
+  }
+
+  return prisma.article.findFirst({
+    where: { id: articleId, status: "PUBLISHED", deletedAt: null },
+    select: { id: true, status: true, deletedAt: true },
+  });
 }
 
 export async function submitFeedbackAction(
@@ -44,10 +70,7 @@ export async function submitFeedbackAction(
     return { error: "请选择 0 至 5 星评分。", success: false };
   }
 
-  const article = await prisma.article.findFirst({
-    where: { id: articleId, status: "PUBLISHED", deletedAt: null },
-    select: { id: true },
-  });
+  const article = await findPublishedArticle(articleId);
   if (!article) return { error: "文章不存在或暂未发布。", success: false };
 
   const cookieStore = await cookies();
@@ -64,6 +87,27 @@ export async function submitFeedbackAction(
   }
 
   const visitorHash = hashVisitorToken(visitorToken);
+  if (usesNocoBase()) {
+    const cooldownCookie = `${FEEDBACK_COOLDOWN_COOKIE_PREFIX}${articleId}`;
+    if (cookieStore.has(cooldownCookie)) {
+      return { error: "你刚刚已经提交过反馈，请稍后再试。", success: false };
+    }
+
+    await nocobaseRequest("articleFeedback:create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ articleId, nickname, content, rating, visitorHash }),
+    });
+    cookieStore.set(cooldownCookie, "1", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: COOLDOWN_MS / 1000,
+    });
+    return { error: null, success: true };
+  }
+
   const recentFeedback = await prisma.articleFeedback.findFirst({
     where: {
       articleId,

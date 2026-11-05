@@ -24,6 +24,7 @@ Thumbs.db
 # Codex working and delivery folders
 work/
 outputs/
+*-deploy.zip
 
 # TypeScript cache
 *.tsbuildinfo

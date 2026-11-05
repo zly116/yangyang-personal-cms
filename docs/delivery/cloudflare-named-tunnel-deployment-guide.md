@@ -1,6 +1,6 @@
 # 火山云服务器与 Cloudflare Named Tunnel 部署手册
 
-> 状态：部署配置已生成；服务器实测、域名激活和真实截图仍未闭环。
+> 状态：火山云服务器、Docker Compose、域名 HTTPS 和 Cloudflare Named Tunnel 已实测通过；脱敏截图文件仍待补充到仓库。
 
 ## 1. 部署目标
 
@@ -159,12 +159,12 @@ docker compose --env-file .env.production -f docker-compose.production.yml logs 
 docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=200 cloudflared
 ```
 
-| 问题 | 检查内容 |
-| --- | --- |
+| 问题             | 检查内容                                           |
+| -------------- | ---------------------------------------------- |
 | Cloudflare 502 | App 是否健康，Public Hostname 是否为 `http://app:3000` |
-| 数据库连接失败 | `DATABASE_URL` 是否使用 `mysql:3306`，密码是否 URL 编码 |
-| Tunnel 未连接 | Token 是否完整、是否已撤销、服务器网络是否可访问 Cloudflare |
-| 后台登录失败 | 是否执行 Seed，管理员账号密码是否与生产环境一致 |
+| 数据库连接失败        | `DATABASE_URL` 是否使用 `mysql:3306`，密码是否 URL 编码   |
+| Tunnel 未连接     | Token 是否完整、是否已撤销、服务器网络是否可访问 Cloudflare         |
+| 后台登录失败         | 是否执行 Seed，管理员账号密码是否与生产环境一致                     |
 
 ## 11. 更新项目
 
@@ -209,12 +209,13 @@ docker compose --env-file .env.production -f docker-compose.production.yml down 
 
 ## 14. 当前状态
 
-| 项目 | 证据状态 |
-| --- | --- |
-| Next.js 生产构建 | 已测试通过 |
-| Docker 生产配置 | 配置已生成，服务器仍未实测 |
-| Cloudflare 域名接入 | 正在进行 |
-| Named Tunnel | 仍未闭环 |
-| 火山云部署 | 仍未闭环 |
-| 真实操作截图 | 仍未闭环 |
+| 项目              | 证据状态                             |
+| --------------- | -------------------------------- |
+| Next.js 生产构建    | 已测试通过                            |
+| Docker 生产配置     | 已在火山云服务器测试通过                     |
+| Cloudflare 域名接入 | 已测试通过                            |
+| Named Tunnel    | 已测试通过，服务目标为 `http://app:3000`    |
+| 火山云部署           | 已测试通过，App、MySQL、cloudflared 正常运行 |
+| 后台登录与代理跳转       | 已测试通过，不再跳转到 `localhost`          |
+| 数据库手工备份         | 已测试通过                            |
 
