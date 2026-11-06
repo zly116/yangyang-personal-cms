@@ -4,9 +4,9 @@
 
 - [x] 公开文章同时过滤 `PUBLISHED` 和 `deletedAt = null`
 - [x] 公开评论只查询 `APPROVED`
-- [x] 管理后台与写入操作均执行服务端 Session 鉴权
-- [x] 管理员密码使用 scrypt 加盐哈希
-- [x] 数据库 Session 只保存 Token 哈希
+- [x] NocoBase 后台要求管理员认证
+- [x] Next.js 使用独立的最小权限 NocoBase API Token
+- [x] 评论创建权限不允许网站 Token 写入审核状态
 - [x] `.env` 已被 Git 忽略
 - [x] 生产 Compose 不公开 MySQL 与 Next.js 主机端口
 - [x] 生产数据库结构使用 `prisma migrate deploy`
@@ -15,8 +15,9 @@
 - [x] Docker 生产镜像已在火山云服务器实际构建
 - [x] Cloudflare Named Tunnel 已创建并验证
 - [x] Public Hostname 已通过 HTTPS 访问验证
-- [x] App、MySQL 和 cloudflared 生产服务正常运行
-- [x] 后台登录、退出和 Cloudflare 代理跳转已验证
+- [x] App、NocoBase、MySQL 和 cloudflared 生产服务正常运行
+- [x] `blog.geyangyang.vip/admin` 跳转 NocoBase 已验证
+- [x] 前台评论提交、NocoBase 审核与公开展示已验证
 - [x] 已完成至少一次数据库手工备份
 - [x] Next.js 已升级到无已知致命审计漏洞的安全补丁版本
 
@@ -27,7 +28,7 @@
 - [ ] 数据库恢复演练尚未执行
 - [ ] 日志监控、磁盘告警和容器异常通知尚未配置
 - [ ] 域名与服务器接入方式的备案合规需要人工确认
-- [ ] 脱敏后的测试与部署截图尚未保存到仓库
+- [ ] 当前 NocoBase 后台的脱敏验收截图尚未保存到仓库
 
 ## 需要人工提供
 

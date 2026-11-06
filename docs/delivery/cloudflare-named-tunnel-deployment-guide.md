@@ -1,18 +1,20 @@
 # 火山云服务器与 Cloudflare Named Tunnel 部署手册
 
-> 状态：火山云服务器、Docker Compose、域名 HTTPS 和 Cloudflare Named Tunnel 已实测通过；脱敏截图文件仍待补充到仓库。
+> 状态：火山云服务器、Docker Compose、NocoBase、双域名 HTTPS 和 Cloudflare Named Tunnel 已实测通过。
 
 ## 1. 部署目标
 
-将盖洋阳个人 CMS 部署到火山云服务器，通过 Cloudflare Named Tunnel 提供固定 HTTPS 访问入口。服务器不向公网开放 Next.js `3000` 和 MySQL `3306` 端口。
+将盖洋阳个人 CMS 部署到火山云服务器，通过 Cloudflare Named Tunnel 分别提供博客与 NocoBase 后台的 HTTPS 入口。服务器不向公网开放 Next.js、NocoBase 或 MySQL 容器端口。
 
 ```mermaid
 flowchart TD
-    U[访客浏览器] -->|HTTPS| C[Cloudflare]
+    U[访客浏览器] -->|blog.geyangyang.vip| C[Cloudflare]
+    A[管理员浏览器] -->|cms.geyangyang.vip| C
     C --> T[cloudflared 容器]
-    T -->|Docker 内网| A[Next.js app:3000]
-    A -->|Docker 内网| M[MySQL mysql:3306]
-    M --> V[(Docker 数据卷)]
+    T -->|app:3000| WEB[Next.js 公开站点]
+    T -->|nocobase:80| NB[NocoBase 后台]
+    WEB -->|REST API| NB
+    NB --> DB[(NocoBase MySQL 数据卷)]
 ```
 
 ## 2. 安全规则
@@ -49,8 +51,9 @@ flowchart TD
 2. 打开 `Networks → Tunnels`。
 3. 创建 Cloudflared Tunnel，名称建议为 `yangyang-personal-cms`。
 4. 复制 Tunnel Token，只写入服务器 `.env.production`。
-5. 创建 Public Hostname，例如 `blog.example.com`。
-6. Service 类型选择 `HTTP`，目标填写 `app:3000`。
+5. 创建博客 Public Hostname：`blog.geyangyang.vip -> http://app:3000`。
+6. 创建后台 Public Hostname：`cms.geyangyang.vip -> http://nocobase:80`。
+7. 只保留一个正在使用当前 Token 的 `cloudflared` 容器，避免新旧连接器随机转发。
 
 严禁对 Tunnel Token 截图。
 
@@ -90,10 +93,15 @@ chmod 600 .env.production
 - MySQL root 密码；
 - MySQL 应用用户密码；
 - `DATABASE_URL` 中 URL 编码后的密码；
-- 管理员邮箱和全新强密码；
+- 旧 Prisma 回退数据库所需的连接信息；
+- `CONTENT_SOURCE=nocobase`；
+- `NOCOBASE_INTERNAL_URL=http://nocobase:80`；
+- 最小权限 `NOCOBASE_API_TOKEN`；
+- `NOCOBASE_PUBLIC_ADMIN_URL=https://cms.geyangyang.vip/admin`；
+- NocoBase MySQL 密码和 `NOCOBASE_APP_KEY`；
 - Cloudflare Tunnel Token。
 
-`DATABASE_URL` 中的主机名必须使用 Docker 服务名 `mysql`，不能使用 `localhost`。
+Docker 容器之间必须使用 Compose 服务名，不能使用 `localhost`。密钥文件权限保持为 `600`。
 
 ## 7. 启动生产服务
 
@@ -114,23 +122,22 @@ docker compose \
   ps
 ```
 
-预期 `mysql`、`app` 和 `cloudflared` 均正常运行，MySQL 与 App 健康检查通过。
+预期 `mysql`、`app`、`nocobase-mysql`、`nocobase` 和 `cloudflared` 均正常运行，数据库与 App 健康检查通过。
 
 截图位置：
 
 - `images/cloudflare-deployment/09-compose-build.png`
 - `images/cloudflare-deployment/10-compose-services.png`
 
-## 8. 初始化管理员
+## 8. 初始化 NocoBase
 
-```bash
-docker compose \
-  --env-file .env.production \
-  -f docker-compose.production.yml \
-  exec app npm run db:seed
-```
+1. 首次打开 `https://cms.geyangyang.vip/admin` 并创建管理员。
+2. 创建 `siteProfiles`、`articles` 和 `articleFeedback` 数据集。
+3. 配置文章与评论关联、文章编辑表单和评论状态编辑操作。
+4. 创建“网站接口”角色与最小权限 API Token。
+5. 导入资料、文章和评论，再将 `CONTENT_SOURCE` 切换为 `nocobase`。
 
-Seed 根据环境变量创建或更新管理员。管理员密码不能与本地或截图中暴露过的密码相同。
+完整字段与权限说明见 `nocobase-migration-guide.md`。管理员密码不得与本地或截图中暴露过的密码相同。
 
 ## 9. 验证网站
 
@@ -139,11 +146,12 @@ Seed 根据环境变量创建或更新管理员。管理员密码不能与本地
 1. 公共主页可通过 HTTPS 打开；
 2. 已发布文章可访问；
 3. 草稿和回收站文章不可公开访问；
-4. 管理员可以登录和退出；
-5. 个人资料修改后主页更新；
-6. 评论提交后进入待审核；
-7. 通过后评论公开；
-8. 拒绝后评论隐藏但后台记录保留。
+4. `blog.geyangyang.vip/admin` 跳转到 `cms.geyangyang.vip/admin`；
+5. 管理员可以登录 NocoBase；
+6. 个人资料修改后主页更新；
+7. 评论提交后进入 `PENDING`；
+8. 改为 `APPROVED` 后评论公开；
+9. 改为 `REJECTED` 后评论隐藏但记录保留。
 
 截图位置：
 
@@ -156,15 +164,18 @@ Seed 根据环境变量创建或更新管理员。管理员密码不能与本地
 ```bash
 docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=200 app
 docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=200 mysql
+docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=200 nocobase
+docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=200 nocobase-mysql
 docker compose --env-file .env.production -f docker-compose.production.yml logs --tail=200 cloudflared
 ```
 
 | 问题             | 检查内容                                           |
 | -------------- | ---------------------------------------------- |
-| Cloudflare 502 | App 是否健康，Public Hostname 是否为 `http://app:3000` |
-| 数据库连接失败        | `DATABASE_URL` 是否使用 `mysql:3306`，密码是否 URL 编码   |
-| Tunnel 未连接     | Token 是否完整、是否已撤销、服务器网络是否可访问 Cloudflare         |
-| 后台登录失败         | 是否执行 Seed，管理员账号密码是否与生产环境一致                     |
+| Cloudflare 502 | 博客指向 `http://app:3000`，后台指向 `http://nocobase:80` |
+| NocoBase 连接失败 | `NOCOBASE_INTERNAL_URL` 是否使用 `http://nocobase:80`，Token 是否有效 |
+| Tunnel 无副本 | `cloudflared` 容器是否运行，Token 是否已轮换，服务器是否可访问 Cloudflare |
+| 连续出现随机 502 | 是否同时存在旧独立 cloudflared 和 Compose cloudflared 副本 |
+| 后台无法审核 | `articleFeedback` 表格是否有编辑操作，编辑表单是否包含 `status` |
 
 ## 11. 更新项目
 
@@ -178,7 +189,7 @@ docker compose --env-file .env.production -f docker-compose.production.yml up -d
 
 ## 12. 备份
 
-Docker 数据卷不是备份。上线后需要定期导出 MySQL，并将备份复制到服务器之外。
+Docker 数据卷不是备份。上线后需要定期导出 NocoBase MySQL，并将备份复制到服务器之外。
 
 ```bash
 mkdir -p /opt/backups/yangyang-cms
@@ -186,9 +197,9 @@ mkdir -p /opt/backups/yangyang-cms
 docker compose \
   --env-file .env.production \
   -f docker-compose.production.yml \
-  exec -T mysql \
+  exec -T nocobase-mysql \
   sh -c 'exec mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' \
-  > /opt/backups/yangyang-cms/yangyang-cms-$(date +%F-%H%M%S).sql
+  > /opt/backups/yangyang-cms/nocobase-$(date +%F-%H%M%S).sql
 ```
 
 截图只展示备份文件名称、时间和大小，不展示 SQL 内容。
@@ -214,8 +225,9 @@ docker compose --env-file .env.production -f docker-compose.production.yml down 
 | Next.js 生产构建    | 已测试通过                            |
 | Docker 生产配置     | 已在火山云服务器测试通过                     |
 | Cloudflare 域名接入 | 已测试通过                            |
-| Named Tunnel    | 已测试通过，服务目标为 `http://app:3000`    |
-| 火山云部署           | 已测试通过，App、MySQL、cloudflared 正常运行 |
-| 后台登录与代理跳转       | 已测试通过，不再跳转到 `localhost`          |
-| 数据库手工备份         | 已测试通过                            |
+| Named Tunnel | 已测试通过，分别指向 `app:3000` 和 `nocobase:80` |
+| 火山云部署 | 已测试通过，App、NocoBase、MySQL 和 cloudflared 正常运行 |
+| 后台登录与代理跳转 | 已测试通过，`/admin` 跳转到 NocoBase |
+| 评论提交与审核 | 已测试通过，状态闭环为 `PENDING -> APPROVED/REJECTED` |
+| 数据库手工备份 | 已测试通过 |
 

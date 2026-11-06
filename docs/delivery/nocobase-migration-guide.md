@@ -1,6 +1,6 @@
 # NocoBase 后台迁移说明
 
-> 当前状态：集合、权限、数据导入和读写代码已准备；本地验证通过后可将 `CONTENT_SOURCE` 改为 `nocobase`。
+> 当前状态：集合、权限、数据导入、读写代码和生产切换均已完成；生产环境使用 `CONTENT_SOURCE=nocobase`。
 
 ## 1. 目标架构
 
