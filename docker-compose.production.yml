@@ -32,6 +32,7 @@ services:
       CONTENT_SOURCE: ${CONTENT_SOURCE:-prisma}
       NOCOBASE_INTERNAL_URL: ${NOCOBASE_INTERNAL_URL:-http://nocobase:80}
       NOCOBASE_API_TOKEN: ${NOCOBASE_API_TOKEN:-}
+      NOCOBASE_PUBLIC_ADMIN_URL: ${NOCOBASE_PUBLIC_ADMIN_URL:-https://cms.geyangyang.vip/admin}
     depends_on:
       mysql:
         condition: service_healthy

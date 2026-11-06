@@ -95,4 +95,6 @@ docker compose ps
 6. 将 `CONTENT_SOURCE` 从 `prisma` 改为 `nocobase`。
 7. 重建 App，并测试主页与文章详情。
 
+启用 NocoBase 后，旧 `/admin` 会通过 `NOCOBASE_PUBLIC_ADMIN_URL` 重定向到 NocoBase 后台，避免管理员误用仍连接 Prisma 的旧后台。
+
 评论提交在 NocoBase 模式下写入 `articleFeedback`，审核状态使用集合默认值 `PENDING`。10 分钟重复提交限制保存在 HttpOnly Cookie 中，因此无需扩大 API Token 对待审核评论和访客哈希的读取权限。
