@@ -174,7 +174,7 @@ git pull --ff-only
 docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
 ```
 
-App 启动时执行 `prisma migrate deploy`，只应用仓库中尚未执行的迁移。
+生产镜像使用 Next.js standalone 输出，不携带 Prisma CLI。新增 Prisma 迁移时，应在更新 App 前使用独立构建环境执行 `prisma migrate deploy`；仅包含页面或 NocoBase 接入变更时无需执行数据库迁移。
 
 ## 12. 备份
 
