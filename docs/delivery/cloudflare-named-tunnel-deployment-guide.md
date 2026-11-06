@@ -198,7 +198,7 @@ docker compose \
   --env-file .env.production \
   -f docker-compose.production.yml \
   exec -T nocobase-mysql \
-  sh -c 'exec mysqldump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' \
+  sh -c 'exec mysqldump --no-tablespaces -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' \
   > /opt/backups/yangyang-cms/nocobase-$(date +%F-%H%M%S).sql
 ```
 
