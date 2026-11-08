@@ -92,6 +92,7 @@ npm run dev
 - [带图表的项目文章](docs/articles/personal-cms-project.md)
 - [CMS 项目测试手册](docs/delivery/test-manual.md)
 - [NocoBase 后台迁移说明](docs/delivery/nocobase-migration-guide.md)
+- [NocoBase 2.4 Alpha、AI Portal 与 Google 服务接入方案](docs/delivery/nocobase-2.4-alpha-ai-portal-guide.md)
 - [服务器与 Cloudflare Named Tunnel 部署手册](docs/delivery/cloudflare-named-tunnel-deployment-guide.md)
 - [上线前纠偏与验收清单](docs/delivery/release-checklist.md)
 - [`docs/learning`](docs/learning) 中的分阶段学习记录

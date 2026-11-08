@@ -1,0 +1,45 @@
+services:
+  nocobase-alpha-mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${NOCOBASE_ALPHA_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${NOCOBASE_ALPHA_DB_NAME:-nocobase_alpha}
+      MYSQL_USER: ${NOCOBASE_ALPHA_DB_USER:-nocobase_alpha_user}
+      MYSQL_PASSWORD: ${NOCOBASE_ALPHA_DB_PASSWORD}
+    volumes:
+      - nocobase_alpha_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    networks:
+      - cms_internal
+
+  nocobase-alpha:
+    image: ${NOCOBASE_ALPHA_IMAGE:?Set NOCOBASE_ALPHA_IMAGE to a verified official NocoBase 2.4 alpha image}
+    restart: unless-stopped
+    environment:
+      APP_KEY: ${NOCOBASE_ALPHA_APP_KEY}
+      DB_DIALECT: mysql
+      DB_HOST: nocobase-alpha-mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${NOCOBASE_ALPHA_DB_NAME:-nocobase_alpha}
+      DB_USER: ${NOCOBASE_ALPHA_DB_USER:-nocobase_alpha_user}
+      DB_PASSWORD: ${NOCOBASE_ALPHA_DB_PASSWORD}
+    depends_on:
+      nocobase-alpha-mysql:
+        condition: service_healthy
+    expose:
+      - "80"
+    volumes:
+      - nocobase_alpha_storage:/app/nocobase/storage
+    networks:
+      - cms_internal
+
+volumes:
+  nocobase_alpha_mysql_data:
+  nocobase_alpha_storage:
+
