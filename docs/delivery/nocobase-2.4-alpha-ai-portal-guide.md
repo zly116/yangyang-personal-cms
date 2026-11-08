@@ -34,13 +34,13 @@ docker compose \
 
 ### 2.2 验证官方镜像标签
 
-从 NocoBase 官方发布页或官方 Docker 仓库取得准确的 2.4 Alpha 标签，再执行：
+当前已确认的官方测试镜像为 `nocobase/nocobase:2.4-alpha`。启动前再执行镜像清单验证：
 
 ```bash
-docker manifest inspect nocobase/nocobase:<准确标签> >/dev/null
+docker manifest inspect nocobase/nocobase:2.4-alpha >/dev/null
 ```
 
-只有命令返回成功，才能把完整镜像名写入服务器 `.env.nocobase-alpha` 的 `NOCOBASE_ALPHA_IMAGE`。不得猜测标签，也不要使用不固定版本的 `latest`。
+只有命令返回成功才继续。测试期间保持该标签，不使用不固定版本的 `latest`。Alpha 同一标签的镜像内容仍可能被更新，正式验收时需额外记录镜像 digest。
 
 ### 2.3 创建测试环境变量
 
