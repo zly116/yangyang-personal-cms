@@ -16,7 +16,7 @@ services:
       retries: 30
       start_period: 30s
     networks:
-      - cms_internal
+      - nocobase_alpha_internal
 
   nocobase-alpha:
     image: ${NOCOBASE_ALPHA_IMAGE:?Set NOCOBASE_ALPHA_IMAGE to a verified official NocoBase 2.4 alpha image}
@@ -32,14 +32,18 @@ services:
     depends_on:
       nocobase-alpha-mysql:
         condition: service_healthy
-    expose:
-      - "80"
+    ports:
+      - "127.0.0.1:13001:80"
     volumes:
       - nocobase_alpha_storage:/app/nocobase/storage
     networks:
-      - cms_internal
+      - nocobase_alpha_internal
 
 volumes:
   nocobase_alpha_mysql_data:
   nocobase_alpha_storage:
+
+networks:
+  nocobase_alpha_internal:
+    driver: bridge
 

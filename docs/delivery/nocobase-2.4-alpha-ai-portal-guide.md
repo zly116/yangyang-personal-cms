@@ -1,4 +1,4 @@
-# NocoBase 2.4 Alpha、AI Portal 与 Google 服务接入方案
+# NocoBase 2.4 Alpha、AI Portal、邮件与地图验证指南
 
 > 原则：先在隔离测试实例验证，再决定是否替换生产 `nocobase/nocobase:2.2.40`。Alpha 实例不得直接连接生产数据库卷。
 
@@ -49,24 +49,20 @@ cp .env.nocobase-alpha.example .env.nocobase-alpha
 chmod 600 .env.nocobase-alpha
 ```
 
-替换所有示例秘密。DeepSeek 和 Google 凭据先不要写入 Git，也不要在截图或聊天中发送。
+替换所有示例秘密。DeepSeek、邮件和地图凭据不得写入 Git，也不要在截图或聊天中发送。
 
 ## 3. 启动隔离 Alpha 实例
 
-Alpha 覆盖文件复用生产 Compose 的 `cms_internal` 网络，但使用独立数据库和 storage 数据卷：
+Alpha Compose 是完全独立的本地测试环境，使用独立网络、数据库和 storage 数据卷，只将 NocoBase 绑定到本机 `127.0.0.1:13001`：
 
 ```bash
 docker compose \
-  --env-file .env.production \
   --env-file .env.nocobase-alpha \
-  -f docker-compose.production.yml \
   -f docker-compose.nocobase-alpha.yml \
   config --quiet
 
 docker compose \
-  --env-file .env.production \
   --env-file .env.nocobase-alpha \
-  -f docker-compose.production.yml \
   -f docker-compose.nocobase-alpha.yml \
   up -d nocobase-alpha-mysql nocobase-alpha
 ```
@@ -75,14 +71,12 @@ docker compose \
 
 ```bash
 docker compose \
-  --env-file .env.production \
   --env-file .env.nocobase-alpha \
-  -f docker-compose.production.yml \
   -f docker-compose.nocobase-alpha.yml \
   ps nocobase-alpha-mysql nocobase-alpha
 ```
 
-在 Cloudflare Tunnel 增加临时主机名 `cms-alpha.geyangyang.vip`，服务目标使用 `http://nocobase-alpha:80`。测试完成前不要修改 `cms.geyangyang.vip` 和 `blog.geyangyang.vip`。
+本地访问 `http://127.0.0.1:13001`。该文件不直接用于生产 Cloudflare Tunnel；服务器恢复后需单独设计测试域名与 Docker 网络，测试完成前不修改 `cms.geyangyang.vip` 和 `blog.geyangyang.vip`。
 
 ## 4. 数据兼容验证
 
@@ -102,53 +96,60 @@ Alpha 验证期间，Next.js 生产站点继续读取 2.2.40，不切换 `NOCOBA
 
 ## 5. AI Portal 与内置 AI
 
-在 Alpha 后台的插件管理器中确认并启用官方 AI、LLM Provider 和 AI Portal 相关插件。插件名称、授权类型和可用范围以 2.4 Alpha 界面为准；如果插件显示为商业版或需要许可证，不使用非官方包绕过授权。
+本地 Alpha 实例已启用官方 `AI employees` 和 `AI: MCP server` 插件，并创建 Modern page (v2) 页面 `AI Portal`。插件名称、授权类型和可用范围以 2.4 Alpha 界面为准；如果插件显示为商业版或需要许可证，不使用非官方包绕过授权。
 
 DeepSeek 建议配置：
 
 | 配置 | 值 |
 | --- | --- |
-| Provider 类型 | OpenAI-compatible（以插件实际选项为准） |
-| Base URL | `https://api.deepseek.com` |
+| Provider 类型 | NocoBase 内置 `DeepSeek` |
+| Base URL | 留空，使用 Provider 默认地址 |
 | API Key | 在 NocoBase 密钥配置中填写，不写入页面文本和 Git |
-| 模型 | 先选择账号实际可用的对话模型 |
+| 模型 | `Deepseek Flash` |
 | 用途 | 内容草稿、摘要、分类建议和内部问答 |
 
-首次验证只发送不含密码、Token、个人隐私和未公开评论的测试文本。设置调用额度，并检查日志不会输出完整 API Key。
+Atlas 已启用 dedicated model configuration 并固定使用 `Deepseek Flash`。测试提示词成功得到中文回复，说明 AI Portal、NocoBase Provider 与 DeepSeek API 链路可用。
+
+首次验证只发送不含密码、Token、个人隐私和未公开评论的测试文本。设置调用额度，并检查日志不会输出完整 API Key。该能力只在隔离 Alpha 环境验证，尚未接入生产 CMS。
 
 ## 6. 邮件功能
 
-先在插件管理器确认邮件插件支持的协议：
+本次启用 `Notification manager` 和 `Notification: Email`，插件提供 SMTP 传输方式。个人 Gmail 测试渠道采用以下配置：
 
-- 如果支持 SMTP：优先使用 Google Workspace SMTP Relay；
-- 如果只拥有个人 Gmail：可以评估两步验证后的应用专用密码，但不建议作为正式批量邮件服务；
-- 如果支持 Gmail API/OAuth：在 Google Cloud 创建 OAuth 客户端并按最小 scope 授权；
-- 如果插件不支持 Gmail API：不能仅凭 Google Cloud API Key 实现发信，需要 SMTP Relay 或适配插件。
+| 配置 | 值 |
+| --- | --- |
+| Transport | SMTP |
+| Host | `smtp.gmail.com` |
+| Port | `465` |
+| Secure | `True` |
+| Account / From | 测试 Gmail 地址 |
+| Password | Google 应用专用密码，不使用 Gmail 日常密码 |
 
-第一阶段只配置“管理员测试邮件”，不向访客群发。发件地址、回复地址和失败日志需要可追踪，但日志不得记录 OAuth Secret 或邮箱密码。
+`Gmail SMTP 测试` 工作流通过 Notification 节点完成 Test run，测试邮件已发送。工作流保持 `Off`，避免定时重复发送。该方案只用于功能验证，不作为正式群发服务；凭据和日志不得进入 Git，截图需遮挡邮箱和应用专用密码。
 
-## 7. Google Maps Platform
+## 7. 高德地图
 
-1. 在 Google Cloud 创建或选择独立项目并绑定结算账号；
-2. 只启用实际需要的 Maps JavaScript API、Places API 或 Geocoding API；
-3. 创建单独的浏览器 API Key；
-4. 使用 HTTP referrer 限制，只允许 `cms-alpha.geyangyang.vip/*`；
-5. 添加 API 限制和预算告警；
-6. 在 NocoBase 地图字段或地图插件中填写受限 Key；
-7. 生产切换后再增加正式域名，不能使用无域名限制的 Key。
+NocoBase 的 `Block: Map` 同时支持 AMap 和 Google Maps。Google Maps Platform 要求 Google Cloud 结算账号，而中国大陆无法按真实地区创建对应结算资料，因此本次不使用虚假地区或第三方结算账号，改用高德开放平台。
 
-地图浏览器 Key 本身会出现在浏览器请求中，安全性依赖域名限制、API 限制和配额，而不是把它当成完全不可见的秘密。
+1. 启用 `Block: Map` 插件；
+2. 在 Map manager 的 AMap 配置中填写 Web 端 JS API Key 和 `securityJsCode`；
+3. 创建 `locations` 测试集合，包含 `name` 字符串字段和 `location` Point 字段；
+4. 创建测试地点并通过 AMap 选点；
+5. 添加 Map 区块，以 `location` 为 Map field、`name` 为 Marker field；
+6. 验证底图和地点标记均能正常显示。
+
+Key 和 `securityJsCode` 不写入项目文件或截图。测试页面只需保留一个 Map 区块；该地图用于验证第三方地图与 NocoBase 数据驱动展示，不属于当前个人博客的核心功能。
 
 ## 8. 验收清单
 
-- [ ] Alpha 镜像标签来自官方并通过 manifest 验证
-- [ ] Alpha 使用独立数据库和 storage 数据卷
+- [x] Alpha 镜像标签来自官方并记录镜像 digest
+- [x] Alpha 使用独立网络、数据库和 storage 数据卷
 - [ ] 三个集合和关联迁移成功
-- [ ] 原生产后台和博客在测试期间持续可用
-- [ ] 标准后台与 AI Portal 均可登录
-- [ ] DeepSeek 对话成功，Key 未出现在浏览器和日志中
-- [ ] 邮件测试成功，凭据未进入 Git
-- [ ] 地图显示成功，Key 已限制域名、API 和配额
+- [x] 原生产后台和博客在测试期间持续可用
+- [x] 标准后台与 AI Portal 均可登录
+- [x] DeepSeek 对话成功，Key 未进入 Git
+- [x] Gmail SMTP 测试成功，凭据未进入 Git
+- [x] 高德地图底图与地点标记显示成功，凭据未进入 Git
 - [ ] 网站接口角色仍符合最小权限
 - [ ] 已完成回滚演练
 

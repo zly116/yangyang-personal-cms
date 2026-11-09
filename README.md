@@ -92,7 +92,7 @@ npm run dev
 - [带图表的项目文章](docs/articles/personal-cms-project.md)
 - [CMS 项目测试手册](docs/delivery/test-manual.md)
 - [NocoBase 后台迁移说明](docs/delivery/nocobase-migration-guide.md)
-- [NocoBase 2.4 Alpha、AI Portal 与 Google 服务接入方案](docs/delivery/nocobase-2.4-alpha-ai-portal-guide.md)
+- [NocoBase 2.4 Alpha、AI Portal、邮件与地图验证指南](docs/delivery/nocobase-2.4-alpha-ai-portal-guide.md)
 - [服务器与 Cloudflare Named Tunnel 部署手册](docs/delivery/cloudflare-named-tunnel-deployment-guide.md)
 - [上线前纠偏与验收清单](docs/delivery/release-checklist.md)
 - [`docs/learning`](docs/learning) 中的分阶段学习记录
@@ -105,3 +105,5 @@ npm run dev
 - 文章正文仍是普通文本，网站暂未渲染 Markdown
 
 DeepSeek 问答不属于当前 CMS 核心闭环，因此未接入生产系统。
+
+NocoBase 2.4 Alpha 已在完全隔离的本地实例中完成 AI Portal + DeepSeek Flash、Gmail SMTP 和高德地图功能验证。生产后台仍使用 NocoBase 2.2.40；数据迁移、权限复验和回滚演练完成前不升级生产实例。
