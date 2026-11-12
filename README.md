@@ -6,6 +6,8 @@
 
 管理后台：[https://cms.geyangyang.vip/admin](https://cms.geyangyang.vip/admin)
 
+公开 AI Portal：`https://blog.geyangyang.vip/ai`（部署服务器环境变量后启用）
+
 ## 已完成功能
 
 ### 公开站点
@@ -24,6 +26,25 @@
 - 将评论修改为 `APPROVED` 或 `REJECTED`
 - 用角色、操作和字段权限限制网站 API Token
 - 访问 `blog.geyangyang.vip/admin` 自动跳转到 NocoBase
+
+### 公开 AI Portal
+
+- Next.js 提供 `/ai` 对话页面和服务端 `/api/ai/chat` 接口
+- DeepSeek API Key 只保存在服务器环境变量，不发送给浏览器
+- 对匿名请求设置输入长度、调用频率和超时限制
+- 公开 AI Portal 与 NocoBase Alpha 内部 AI Portal 相互独立
+- 联系表单写入 NocoBase，由邮件工作流发送通知
+- 地图从 NocoBase `locations` 集合读取公开地点并使用高德地图展示
+
+### 三个管理与访问入口
+
+| 入口 | 位置 | 用途 |
+| --- | --- | --- |
+| 无代码后台 | NocoBase 标准管理页面 | 管理资料、文章、评论、留言和地点数据 |
+| AI Portal 后台 | NocoBase `Settings` | 配置 AI employees、模型与密钥、邮件通知和地图服务 |
+| AI Portal 前台 | Next.js `/ai` | 供访客使用 AI 对话、留言和地图功能 |
+
+三个入口职责不同：`Settings` 是管理员配置界面，不对访客公开；公开 `/ai` 通过 Next.js 服务端访问 DeepSeek 和 NocoBase，不在浏览器中暴露 API Key 或管理员 Token。
 
 ## 最终架构
 

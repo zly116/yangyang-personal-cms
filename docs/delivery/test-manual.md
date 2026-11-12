@@ -30,6 +30,7 @@
 | `0～5` 星评分与匿名评论 | 已通过 |
 | `PENDING -> APPROVED/REJECTED` 审核 | 已通过 |
 | 旧 `/admin` 到 NocoBase 跳转 | 已通过 |
+| 公开 AI Portal 页面与对话 | 待部署验证 |
 | Docker 与 Cloudflare Tunnel | 已通过 |
 
 ## 4. 公开站点
@@ -177,6 +178,7 @@
 - 生产数据库恢复演练尚未执行；仓库已提供隔离恢复校验脚本
 - 评论接口的网关限流与验证码
 - 磁盘、容器和异常日志告警
+- 在生产 `.env.production` 配置 DeepSeek，并验证 `/ai` 的公网对话与限流
 
 ## 10. 测试结论
 

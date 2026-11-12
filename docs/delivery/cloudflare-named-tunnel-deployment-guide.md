@@ -99,6 +99,7 @@ chmod 600 .env.production
 - 最小权限 `NOCOBASE_API_TOKEN`；
 - `NOCOBASE_PUBLIC_ADMIN_URL=https://cms.geyangyang.vip/admin`；
 - NocoBase MySQL 密码和 `NOCOBASE_APP_KEY`；
+- 公开 AI Portal 使用的 `DEEPSEEK_API_KEY`、`DEEPSEEK_MODEL=deepseek-chat` 和 API 地址；
 - Cloudflare Tunnel Token。
 
 Docker 容器之间必须使用 Compose 服务名，不能使用 `localhost`。密钥文件权限保持为 `600`。
@@ -148,10 +149,11 @@ docker compose \
 3. 草稿和回收站文章不可公开访问；
 4. `blog.geyangyang.vip/admin` 跳转到 `cms.geyangyang.vip/admin`；
 5. 管理员可以登录 NocoBase；
-6. 个人资料修改后主页更新；
-7. 评论提交后进入 `PENDING`；
-8. 改为 `APPROVED` 后评论公开；
-9. 改为 `REJECTED` 后评论隐藏但记录保留。
+6. 打开 `blog.geyangyang.vip/ai`，发送不含隐私的测试问题并确认收到回答；
+7. 个人资料修改后主页更新；
+8. 评论提交后进入 `PENDING`；
+9. 改为 `APPROVED` 后评论公开；
+10. 改为 `REJECTED` 后评论隐藏但记录保留。
 
 截图位置：
 

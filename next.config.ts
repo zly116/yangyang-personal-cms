@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
-const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  output: "standalone",
-};
-
-export default nextConfig;
+export default function nextConfig(phase: string): NextConfig {
+  return {
+    reactStrictMode: true,
+    output: "standalone",
+    distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next" : ".next-build",
+  };
+}

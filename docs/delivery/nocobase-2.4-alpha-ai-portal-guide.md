@@ -15,6 +15,16 @@ cms-alpha.geyangyang.vip  -> NocoBase 2.4 Alpha 测试后台
 
 完成数据兼容、权限和插件验收后，才可以讨论把生产域名切换到 2.4。不要同时让两个不同版本写入同一个 MySQL 数据库。
 
+本项目同时区分以下三个界面层级：
+
+| 层级 | 当前入口 | 使用者 | 职责 |
+| --- | --- | --- | --- |
+| 无代码后台 | NocoBase 标准管理页面 | 管理员 | 管理集合、资料、文章、评论、留言与地点 |
+| AI Portal 后台 | NocoBase 顶部齿轮进入的 `Settings` | 管理员 | 配置 AI employees、Variables and secrets、Notification manager、Map manager 等能力 |
+| AI Portal 前台 | Next.js `/ai` | 公开访客 | 提供 AI 对话、联系表单和公开地图 |
+
+NocoBase 中名为 `AI Portal` 的 Modern page (v2) 是 Alpha 环境里的内部演示页面；公开站点的 AI Portal 是 Next.js `/ai`。两者不能混称为同一个入口，也不能把 `Settings` 暴露给公开访客。
+
 ## 2. 启动前检查
 
 ### 2.1 备份生产数据

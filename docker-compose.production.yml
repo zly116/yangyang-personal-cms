@@ -33,6 +33,13 @@ services:
       NOCOBASE_INTERNAL_URL: ${NOCOBASE_INTERNAL_URL:-http://nocobase:80}
       NOCOBASE_API_TOKEN: ${NOCOBASE_API_TOKEN:-}
       NOCOBASE_PUBLIC_ADMIN_URL: ${NOCOBASE_PUBLIC_ADMIN_URL:-https://cms.geyangyang.vip/admin}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com/chat/completions}
+      NOCOBASE_CONTACT_COLLECTION: ${NOCOBASE_CONTACT_COLLECTION:-contactMessages}
+      NOCOBASE_LOCATION_COLLECTION: ${NOCOBASE_LOCATION_COLLECTION:-locations}
+      AMAP_WEB_KEY: ${AMAP_WEB_KEY:-}
+      AMAP_SECURITY_CODE: ${AMAP_SECURITY_CODE:-}
     depends_on:
       mysql:
         condition: service_healthy

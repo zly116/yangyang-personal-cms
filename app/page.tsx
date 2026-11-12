@@ -18,7 +18,7 @@ export default async function HomePage() {
     <main className="site-shell">
       <nav className="topbar">
         <a className="brand" href="#top">{profile.name}<span>/ lab</span></a>
-        <div className="nav-links"><a href="#about">关于我</a><a href="#articles">文章</a><a href="#roadmap">路线图</a></div>
+        <div className="nav-links"><a href="#about">关于我</a><a href="#articles">文章</a><Link href="/ai">AI Portal</Link><a href="#roadmap">路线图</a></div>
       </nav>
 
       <section className="hero" id="top">
