@@ -187,22 +187,32 @@ docker compose --env-file .env.production -f docker-compose.production.yml up -d
 
 生产镜像使用 Next.js standalone 输出，不携带 Prisma CLI。新增 Prisma 迁移时，应在更新 App 前使用独立构建环境执行 `prisma migrate deploy`；仅包含页面或 NocoBase 接入变更时无需执行数据库迁移。
 
-## 12. 备份
+## 12. 备份与恢复验证
 
-Docker 数据卷不是备份。上线后需要定期导出 NocoBase MySQL，并将备份复制到服务器之外。
+Docker 数据卷不是备份。仓库提供 `ops/backup-nocobase.sh`，默认将压缩备份写入 `/opt/backups/yangyang-cms`，保留 14 天，并且只在完整导出和压缩校验成功后生成最终文件。
 
 ```bash
 mkdir -p /opt/backups/yangyang-cms
-
-docker compose \
-  --env-file .env.production \
-  -f docker-compose.production.yml \
-  exec -T nocobase-mysql \
-  sh -c 'exec mysqldump --no-tablespaces -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' \
-  > /opt/backups/yangyang-cms/nocobase-$(date +%F-%H%M%S).sql
+chmod 700 ops/backup-nocobase.sh ops/verify-nocobase-restore.sh
+ENV_FILE=.env.production ./ops/backup-nocobase.sh
 ```
 
-截图只展示备份文件名称、时间和大小，不展示 SQL 内容。
+每天凌晨 03:15 自动备份：
+
+```cron
+15 3 * * * cd /opt/yangyang-cms && ENV_FILE=.env.production ./ops/backup-nocobase.sh >> /var/log/yangyang-cms-backup.log 2>&1
+```
+
+安装计划任务后必须执行一次手工备份，并检查日志、文件大小和 `gzip -t`。备份还应通过对象存储、另一台服务器或受控同步工具复制到服务器之外；异地目标由项目负责人确定。
+
+隔离恢复验证不会覆盖生产数据库。脚本会创建带时间戳的临时数据库，导入备份、确认至少存在一张表，然后自动删除临时数据库：
+
+```bash
+ENV_FILE=.env.production ./ops/verify-nocobase-restore.sh \
+  /opt/backups/yangyang-cms/nocobase-YYYY-MM-DD-HHMMSS.sql.gz
+```
+
+截图只展示备份文件名称、时间、大小和恢复校验结果，不展示 SQL 内容或环境变量。
 
 ## 13. 停止服务
 

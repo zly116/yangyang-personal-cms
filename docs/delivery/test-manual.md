@@ -44,6 +44,17 @@
 
 实际结果：**已通过**。
 
+### TC-FEEDBACK-03：审核时间自动写入
+
+1. 在本地 NocoBase Alpha 中启用“评论审核时间自动更新”工作流。
+2. 将一条待审核评论改为“已通过”。
+3. 返回评论表格，检查 `reviewedAt`（审核时间）。
+4. 打开工作流列表，检查执行次数。
+
+预期结果：只有 `status` 变为 `APPROVED` 或 `REJECTED` 时触发；当前评论的审核时间自动写入，且工作流产生一次成功执行记录。
+
+实际结果：**已通过**。评论 ID 2 的审核时间自动写入为 `2026-11-12 13:54:13`，工作流执行次数由 0 变为 1。该验证仅操作本地 `127.0.0.1:13001`，未修改生产后台。
+
 ![公开主页](images/test-manual/01-public-home.jpg)
 
 ![公开主页文章列表](images/test-manual/10-public-article-list.jpg)
@@ -143,12 +154,27 @@
 - `10-public-article-list.jpg`：文章列表
 - `11-article-feedback-form.jpg`：评分与评论表单
 
-`03～09` 和 `12` 是旧 Next.js 手写后台截图，仅用于记录项目第一阶段，不作为当前 NocoBase 后台的验收证据。NocoBase 后台截图必须先遮挡管理员账号和所有 Token 再归档。
+当前有效的 NocoBase 后台脱敏截图：
+
+- `13-nocobase-articles.png`：NocoBase 文章列表
+- `14-nocobase-profile.png`：NocoBase 个人资料编辑
+- `15-nocobase-feedback.png`：NocoBase 评论列表
+- `16-nocobase-feedback-review.png`：NocoBase 评论审核表单
+
+![NocoBase 文章列表](images/test-manual/13-nocobase-articles.png)
+
+![NocoBase 个人资料编辑](images/test-manual/14-nocobase-profile.png)
+
+![NocoBase 评论列表](images/test-manual/15-nocobase-feedback.png)
+
+![NocoBase 评论审核](images/test-manual/16-nocobase-feedback-review.png)
+
+`03～09` 和 `12` 是旧 Next.js 手写后台截图，仅用于记录项目第一阶段，不作为当前 NocoBase 后台的验收证据。`13～16` 不展示密码、API Token、Tunnel Token 或数据库凭据。
 
 ## 9. 仍未闭环项
 
-- 数据库定时备份与异地保存
-- 备份恢复演练
+- 生产服务器尚未安装仓库中的定时备份任务，也未配置异地保存位置
+- 生产数据库恢复演练尚未执行；仓库已提供隔离恢复校验脚本
 - 评论接口的网关限流与验证码
 - 磁盘、容器和异常日志告警
 

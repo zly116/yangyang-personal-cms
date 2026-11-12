@@ -97,6 +97,13 @@ npm run dev
 - [上线前纠偏与验收清单](docs/delivery/release-checklist.md)
 - [`docs/learning`](docs/learning) 中的分阶段学习记录
 
+## 运维脚本
+
+- `ops/backup-nocobase.sh`：压缩备份生产 NocoBase MySQL，并按保留周期清理旧文件
+- `ops/verify-nocobase-restore.sh`：将备份导入临时数据库进行隔离恢复校验，完成后自动清理
+
+脚本不包含密码，运行时从服务器的 `.env.production` 读取数据库配置。定时任务和恢复校验命令见部署手册。
+
 ## 已知边界
 
 - 评论接口只有基础防重复策略，尚未增加网关限流和验证码
