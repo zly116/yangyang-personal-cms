@@ -31,22 +31,45 @@ export function PortalMap() {
         if (cancelled || !container.current) return;
 
         const mapWindow = window as AMapWindow;
-        if (data.securityCode) {
-          mapWindow._AMapSecurityConfig = { securityJsCode: data.securityCode };
-        }
-        const script = document.createElement("script");
-        script.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(data.key)}`;
-        script.async = true;
-        script.onload = () => {
-          if (cancelled || !container.current || !mapWindow.AMap) return;
+      const initializeMap = () => {
+        if (cancelled || !container.current || !mapWindow.AMap) return;
           const position = [data.location.longitude, data.location.latitude];
           const map = new mapWindow.AMap.Map(container.current, { zoom: 12, center: position });
           map.add(new mapWindow.AMap.Marker({ position, title: data.location.name }));
         };
-        script.onerror = () => setError("地图资源加载失败。");
-        document.head.appendChild(script);
+
+      if (mapWindow.AMap) {
+        initializeMap();
+        return;
+      }
+
+      if (data.securityCode) {
+        mapWindow._AMapSecurityConfig = { securityJsCode: data.securityCode };
+      }
+
+      const existingScript = document.querySelector<HTMLScriptElement>(
+        'script[data-amap-web-js="true"]',
+      );
+      if (existingScript) {
+        existingScript.addEventListener("load", initializeMap, { once: true });
+        existingScript.addEventListener(
+          "error",
+          () => setError("地图资源加载失败，请检查高德 Web 端 Key 配置。"),
+          { once: true },
+        );
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.dataset.amapWebJs = "true";
+      script.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(data.key)}`;
+      script.async = true;
+      script.onload = initializeMap;
+      script.onerror = () => setError("地图资源加载失败，请检查高德 Web 端 Key 配置。");
+      document.head.appendChild(script);
       } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : "地图暂时不可用。");
+      console.error("Public map initialization failed", loadError);
+      setError("地图暂时不可用；AI 对话和留言功能仍可继续使用。");
       }
     }
 
